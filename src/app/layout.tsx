@@ -1,23 +1,21 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import ConvexClientProvider from "@/components/ConvexClientProvider";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import LeafDecoration from "@/components/LeafDecoration";
+import { ConvexClientProvider } from "@/components/ConvexClientProvider";
+import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Katherine Marie — Adventures in Living",
-  description: "Two road trips. Thousands of miles. Endless stories.",
+  title: "Katherine Marie | Travel Stories",
+  description: "Follow Katie and Chad on epic road trips across America.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className="bg-jungle-pattern min-h-screen">
         <ConvexClientProvider>
-          <LeafDecoration />
           <Navigation />
-          <main className="relative z-10">{children}</main>
+          <main className="min-h-screen">{children}</main>
           <Footer />
         </ConvexClientProvider>
       </body>
