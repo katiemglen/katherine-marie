@@ -33,28 +33,19 @@ export default function TripPage() {
     (a, b) => a.sortOrder - b.sortOrder
   );
 
-  const coverImage = category.coverImage || sortedPosts[0]?.images?.[0];
+  const coverImage = category.coverImage || (sortedPosts[0] && sortedPosts[0].images[0]);
 
   return (
     <div className="pt-16">
       <section className="relative h-[50vh] min-h-[400px] flex items-end overflow-hidden">
         {coverImage && (
           <div className="absolute inset-0">
-            <img
-              src={coverImage}
-              alt={category.name}
-              className="w-full h-full object-cover"
-            />
+            <img src={coverImage} alt={category.name} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0d] via-[#0a0f0d]/50 to-[#0a0f0d]/20" />
           </div>
         )}
-
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <div className="flex items-center gap-2 text-golden-300/80 mb-3">
               <MapPin className="w-4 h-4" />
               {category.dateRange && (
@@ -64,15 +55,8 @@ export default function TripPage() {
                 </span>
               )}
             </div>
-
-            <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white mb-3">
-              {category.name}
-            </h1>
-
-            <p className="text-lg text-slate-300/80 max-w-2xl mb-4">
-              {category.description}
-            </p>
-
+            <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white mb-3">{category.name}</h1>
+            <p className="text-lg text-slate-300/80 max-w-2xl mb-4">{category.description}</p>
             <div className="flex items-center gap-1.5 text-jungle-400">
               <BookOpen className="w-4 h-4" />
               <span className="text-sm">{category.postCount} stories</span>

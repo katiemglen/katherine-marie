@@ -20,7 +20,6 @@ export default function HomePage() {
 
   return (
     <div className="pt-16">
-      {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img
@@ -67,8 +66,7 @@ export default function HomePage() {
 
             <p className="text-lg sm:text-xl text-slate-300/90 max-w-2xl mx-auto mb-8 leading-relaxed">
               Two road trips. Thousands of miles. Countless adventures.
-              Follow Katie &amp; Chad across America — from snow-capped mountains
-              to sun-soaked coastlines.
+              Follow Katie &amp; Chad across America.
             </p>
 
             <motion.div
@@ -83,7 +81,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trip Series */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -116,7 +113,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Recent Posts */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

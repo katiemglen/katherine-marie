@@ -5,10 +5,8 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Katherine Marie | Travel Stories & Adventures",
-  description:
-    "Follow Katie and Chad on epic road trips across America — from the mountains of Colorado to the beaches of the Outer Banks.",
-  keywords: ["travel blog", "road trip", "west coast", "east coast", "adventure"],
+  title: "Katherine Marie | Travel Stories",
+  description: "Follow Katie and Chad on epic road trips across America.",
 };
 
 export default function RootLayout({
