@@ -1,135 +1,82 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { useParams } from "next/navigation";
-import { useState, useCallback, useMemo } from "react";
+import PostContent from "@/components/PostContent";
+import ImageGallery from "@/components/ImageGallery";
+import { PageLoading } from "@/components/LoadingState";
+import { formatDate, categorySlugToTripSlug, getTripInfo, getCategoryLabel } from "@/lib/utils";
 import { motion } from "framer-motion";
-import parse from "html-react-parser";
+import { Calendar, Clock, Tag, ArrowLeft, ArrowRight, ChevronLeft, Camera } from "lucide-react";
 import Link from "next/link";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { Lightbox } from "@/components/Lightbox";
-import { Calendar, Clock, ArrowLeft, ArrowRight, Camera, ChevronLeft, Tag } from "lucide-react";
 
 export default function PostPage() {
   const params = useParams();
   const slug = params.slug as string;
   const post = useQuery(api.posts.getBySlug, { slug });
   const adjacent = useQuery(api.posts.getAdjacentPosts, { slug });
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  const openLightbox = useCallback((index: number) => {
-    setLightboxIndex(index);
-    setLightboxOpen(true);
-  }, []);
-
-  const processedContent = useMemo(() => {
-    if (!post) return null;
-    const images = post.images;
-    let imageCounter = 0;
-    return parse(post.content, {
-      replace: (domNode: any) => {
-        if (domNode.name === "img" && domNode.attribs?.src) {
-          const src = domNode.attribs.src;
-          const imgIndex = images.indexOf(src);
-          const clickIndex = imgIndex >= 0 ? imgIndex : imageCounter;
-          imageCounter++;
-          return (
-            <img
-              src={src}
-              alt={domNode.attribs.alt || ""}
-              className="w-full h-auto rounded-xl my-6 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:shadow-[0_8px_30px_rgba(34,197,94,0.2)]"
-              loading="lazy"
-              onClick={() => openLightbox(clickIndex)}
-            />
-          );
-        }
-        if (domNode.type === "text" && typeof domNode.data === "string" && domNode.data.match(/\[gallery[^\]]*\]/)) {
-          return <></>;
-        }
-      },
-    });
-  }, [post, openLightbox]);
-
-  if (post === undefined) return <LoadingSpinner />;
-  if (!post) {
-    return (
-      <div className="pt-24 text-center">
-        <h1 className="font-serif text-3xl text-white">Post not found</h1>
-        <Link href="/" className="text-jungle-400 hover:underline mt-4 inline-block">Go home</Link>
-      </div>
-    );
+  if (post === undefined) return <PageLoading />;
+  if (post === null) {
+    return (<div className="min-h-screen flex items-center justify-center pt-20"><div className="text-center"><h1 className="font-serif text-3xl text-white/80 mb-4">Post Not Found</h1><Link href="/posts" className="text-jungle-400 hover:text-jungle-300">All posts</Link></div></div>);
   }
 
-  const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
-    weekday: "long", month: "long", day: "numeric", year: "numeric",
-  });
-  const coverImage = post.images[0];
+  const tripSlug = categorySlugToTripSlug(post.categorySlug);
+  const tripInfo = tripSlug ? getTripInfo(tripSlug) : null;
+  const coverImage = post.images.find((url) => !url.endsWith(".gif") && !url.includes("map"));
 
   return (
-    <div className="pt-16">
-      {coverImage && (
-        <section className="relative h-[45vh] min-h-[350px] overflow-hidden">
-          <img src={coverImage} alt={post.title} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0d] via-[#0a0f0d]/40 to-[#0a0f0d]/20" />
-        </section>
-      )}
-      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <Link href={`/trips/${post.categorySlug}`} className="inline-flex items-center gap-1.5 text-sm text-jungle-400 hover:text-jungle-300 transition-colors mb-6">
-            <ChevronLeft className="w-4 h-4" />
-            Back to {post.category}
-          </Link>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-4">
-            <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{formattedDate}</span>
+    <article className="min-h-screen">
+      <div className="relative">
+        {coverImage && (
+          <div className="relative h-[40vh] sm:h-[50vh] overflow-hidden">
+            <img src={coverImage} alt={post.title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-jungle-900 via-jungle-900/60 to-jungle-900/30" />
+          </div>
+        )}
+        <div className={`relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 ${coverImage ? "-mt-32 pb-8" : "pt-28 pb-8"}`}>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mb-6">
+            {tripInfo && tripSlug ? (
+              <Link href={`/trips/${tripSlug}`} className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white/60 transition-colors"><ChevronLeft className="w-4 h-4" />{tripInfo.emoji} {tripInfo.name}</Link>
+            ) : (
+              <Link href="/posts" className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white/60 transition-colors"><ChevronLeft className="w-4 h-4" />All Posts</Link>
+            )}
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-jungle-600/20 text-jungle-400 border border-jungle-600/20"><Tag className="w-3 h-3" />{getCategoryLabel(post.category)}</span>
+          </motion.div>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white/95 mb-6 leading-tight">{post.title}</motion.h1>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap items-center gap-4 text-sm text-white/40">
+            <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{formatDate(post.date)}</span>
             <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{post.readingTime} min read</span>
-            <span className="flex items-center gap-1.5"><Camera className="w-4 h-4" />{post.images.length} photos</span>
-            <Link href={`/trips/${post.categorySlug}`} className="flex items-center gap-1.5 text-jungle-400 hover:text-jungle-300 transition-colors">
-              <Tag className="w-4 h-4" />{post.category}
+            {post.images.length > 0 && <span className="flex items-center gap-1.5"><Camera className="w-4 h-4" />{post.images.length} photos</span>}
+            <span className="text-white/20">{post.wordCount.toLocaleString()} words</span>
+          </motion.div>
+        </div>
+      </div>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="glass-card p-6 sm:p-8 md:p-10">
+          <PostContent content={post.content} images={post.images} />
+        </div>
+        {post.images.length > 1 && <ImageGallery images={post.images} title="Photos from this post" />}
+      </motion.div>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col sm:flex-row items-stretch gap-4">
+          {adjacent?.prev ? (
+            <Link href={`/posts/${adjacent.prev.slug}`} className="flex-1 glass-card p-5 group hover:border-jungle-400/20 transition-all">
+              <div className="flex items-center gap-2 text-xs text-white/30 mb-2"><ArrowLeft className="w-3 h-3" />Previous</div>
+              <p className="text-sm text-white/70 group-hover:text-white/90 transition-colors font-medium line-clamp-2">{adjacent.prev.title}</p>
             </Link>
-          </div>
-          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">{post.title}</h1>
-          {post.images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-4 mb-8">
-              {post.images.map((img, i) => (
-                <button key={i} onClick={() => openLightbox(i)} className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent hover:border-jungle-400 transition-colors">
-                  <img src={img} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="blog-content glass-card p-6 sm:p-8 md:p-10">{processedContent}</div>
-          <div className="flex justify-between items-center mt-12 gap-4">
-            {adjacent?.prev ? (
-              <Link href={`/posts/${adjacent.prev.slug}`} className="glass-card p-4 flex items-center gap-3 group flex-1 max-w-[45%]">
-                <ArrowLeft className="w-5 h-5 text-jungle-400 flex-shrink-0 group-hover:-translate-x-1 transition-transform" />
-                <div className="min-w-0">
-                  <span className="text-xs text-slate-500">Previous</span>
-                  <p className="text-sm text-slate-300 group-hover:text-jungle-300 transition-colors truncate">{adjacent.prev.title}</p>
-                </div>
-              </Link>
-            ) : <div />}
-            {adjacent?.next ? (
-              <Link href={`/posts/${adjacent.next.slug}`} className="glass-card p-4 flex items-center gap-3 group flex-1 max-w-[45%] text-right">
-                <div className="min-w-0 flex-1">
-                  <span className="text-xs text-slate-500">Next</span>
-                  <p className="text-sm text-slate-300 group-hover:text-jungle-300 transition-colors truncate">{adjacent.next.title}</p>
-                </div>
-                <ArrowRight className="w-5 h-5 text-jungle-400 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            ) : <div />}
-          </div>
-        </motion.div>
-      </article>
-      <Lightbox
-        images={post.images}
-        currentIndex={lightboxIndex}
-        isOpen={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        onPrev={() => setLightboxIndex((i) => Math.max(0, i - 1))}
-        onNext={() => setLightboxIndex((i) => Math.min(post.images.length - 1, i + 1))}
-      />
-    </div>
+          ) : <div className="flex-1" />}
+          {adjacent?.next ? (
+            <Link href={`/posts/${adjacent.next.slug}`} className="flex-1 glass-card p-5 text-right group hover:border-jungle-400/20 transition-all">
+              <div className="flex items-center justify-end gap-2 text-xs text-white/30 mb-2">Next<ArrowRight className="w-3 h-3" /></div>
+              <p className="text-sm text-white/70 group-hover:text-white/90 transition-colors font-medium line-clamp-2">{adjacent.next.title}</p>
+            </Link>
+          ) : <div className="flex-1" />}
+        </div>
+      </div>
+    </article>
   );
 }

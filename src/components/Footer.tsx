@@ -1,28 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { Compass, Heart } from "lucide-react";
+import { Leaf, Heart } from "lucide-react";
+import { motion } from "framer-motion";
 
-export function Footer() {
+export default function Footer() {
   return (
-    <footer className="border-t border-jungle-900/30 mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <Compass className="w-5 h-5 text-jungle-400" />
-            <span className="font-serif text-lg bg-gradient-to-r from-jungle-300 to-golden-300 bg-clip-text text-transparent">
-              Katherine Marie
-            </span>
+    <footer className="relative mt-32">
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-jungle-950/80 pointer-events-none" />
+      <div className="relative bg-jungle-950/80 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Leaf className="w-5 h-5 text-jungle-400" />
+                <span className="font-serif text-xl sunbeam-text">Katherine Marie</span>
+              </div>
+              <p className="text-white/40 text-sm leading-relaxed">Adventures across America and beyond. Every mile a memory, every stop a story.</p>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-white/80 mb-4">Road Trips</h3>
+              <div className="space-y-2">
+                <Link href="/trips/west-coast-2016" className="block text-sm text-white/40 hover:text-jungle-400 transition-colors">West Coast 2016</Link>
+                <Link href="/trips/east-coast-2019" className="block text-sm text-white/40 hover:text-jungle-400 transition-colors">East Coast 2019</Link>
+                <Link href="/posts" className="block text-sm text-white/40 hover:text-jungle-400 transition-colors">All Posts</Link>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-white/80 mb-4">About</h3>
+              <p className="text-white/40 text-sm leading-relaxed mb-4">Katie &amp; Chad&apos;s travel stories.</p>
+              <Link href="/about" className="text-sm text-jungle-400 hover:text-jungle-300 transition-colors">Learn more &rarr;</Link>
+            </div>
           </div>
-          <div className="flex gap-6 text-sm text-slate-400">
-            <Link href="/trips/2016-west-coast-road-trip" className="hover:text-jungle-300 transition-colors">West Coast</Link>
-            <Link href="/trips/2019-east-coast-road-trip" className="hover:text-jungle-300 transition-colors">East Coast</Link>
-            <Link href="/archive" className="hover:text-jungle-300 transition-colors">Archive</Link>
-            <Link href="/about" className="hover:text-jungle-300 transition-colors">About</Link>
+          <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-white/30 text-xs">&copy; {new Date().getFullYear()} Katherine Marie. All rights reserved.</p>
+            <motion.p className="text-white/30 text-xs flex items-center gap-1" whileHover={{ scale: 1.05 }}>
+              Made with <Heart className="w-3 h-3 text-red-400/60" /> and wanderlust
+            </motion.p>
           </div>
-          <p className="text-sm text-slate-500 flex items-center gap-1">
-            Made with <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> by Katie &amp; Chad
-          </p>
         </div>
       </div>
     </footer>
